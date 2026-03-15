@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="dark-mode">
     <div class="background-blobs">
         <div class="stars-container" id="starsContainer"></div>
         <div class="stars-container slow" id="starsContainerSlow"></div>
@@ -19,7 +18,42 @@
         <div class="nebula nebula-3"></div>
     </div>
 
-    <main class="container">
+    <!-- Auth Section -->
+    <div id="authView" class="auth-container">
+        <div class="auth-card">
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <p>Login to manage your tasks</p>
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <button id="loginBtn" class="primary-btn full-width">Login</button>
+                <p class="toggle-text">Don't have an account? <a href="#" id="toRegister">Register</a></p>
+            </div>
+
+            <div id="registerForm" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <p>Join the cosmic task manager</p>
+                <div class="form-group">
+                    <input type="text" id="regUsername" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="regEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="regPassword" placeholder="Password" required>
+                </div>
+                <button id="registerBtn" class="primary-btn full-width">Register</button>
+                <p class="toggle-text">Already have an account? <a href="#" id="toLogin">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task View (Initially Hidden) -->
+    <main id="taskView" class="container hidden">
         <header>
             <div class="header-top">
                 <h1>Task Master</h1>
@@ -46,6 +80,12 @@
                 <!-- Tasks will be injected here -->
             </ul>
         </section>
+
+        <!-- Sidebar / History Placeholder -->
+        <div class="history-section">
+            <button id="showHistory" class="text-btn"><i class="fas fa-history"></i> View History</button>
+            <button id="logoutBtn" class="text-btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
     </main>
 
     <!-- Edit Task Modal -->
@@ -57,6 +97,19 @@
             <div class="modal-actions">
                 <button id="cancelEdit" class="secondary-btn">Cancel</button>
                 <button id="saveEdit" class="primary-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content history-modal">
+            <div class="modal-header">
+                <h2>Task History</h2>
+                <button id="closeHistory" class="text-btn" aria-label="Close history"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="historyContent" class="history-list">
+                <!-- History items will be injected here -->
             </div>
         </div>
     </div>

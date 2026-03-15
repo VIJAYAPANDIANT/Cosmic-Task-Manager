@@ -1,8 +1,27 @@
 // State Management
 let todos = JSON.parse(localStorage.getItem('todos')) || [];
+let history = JSON.parse(localStorage.getItem('taskHistory')) || [];
 let currentEditId = null;
 
 // DOM Elements
+const authView = document.getElementById('authView');
+const taskView = document.getElementById('taskView');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const toRegister = document.getElementById('toRegister');
+const toLogin = document.getElementById('toLogin');
+const logoutBtn = document.getElementById('logoutBtn');
+
+// Auth Inputs
+const loginEmailInput = document.getElementById('loginEmail');
+const loginPassInput = document.getElementById('loginPassword');
+const regUserInput = document.getElementById('regUsername');
+const regEmailInput = document.getElementById('regEmail');
+const regPassInput = document.getElementById('regPassword');
+
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+
 const todoForm = document.getElementById('todoForm');
 const todoInput = document.getElementById('todoInput');
 const todoList = document.getElementById('todoList');
@@ -14,6 +33,12 @@ const editInput = document.getElementById('editInput');
 const saveEditBtn = document.getElementById('saveEdit');
 const cancelEditBtn = document.getElementById('cancelEdit');
 
+// History Elements
+const historyModal = document.getElementById('historyModal');
+const historyContent = document.getElementById('historyContent');
+const showHistoryBtn = document.getElementById('showHistory');
+const closeHistoryBtn = document.getElementById('closeHistory');
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark-mode';
@@ -21,6 +46,68 @@ document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon();
     renderTasks();
     createStars();
+    
+    // Check if logged in (placeholder)
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (currentUser) {
+        showView('task');
+    } else {
+        showView('auth');
+    }
+});
+
+function showView(view) {
+    if (view === 'task') {
+        authView.classList.add('hidden');
+        taskView.classList.remove('hidden');
+    } else {
+        authView.classList.remove('hidden');
+        taskView.classList.add('hidden');
+    }
+}
+
+// View Toggles
+toRegister.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginForm.classList.add('hidden');
+    registerForm.classList.remove('hidden');
+});
+
+toLogin.addEventListener('click', (e) => {
+    e.preventDefault();
+    registerForm.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+});
+
+logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('currentUser');
+    showView('auth');
+});
+
+// Auth Handlers
+loginBtn.addEventListener('click', async () => {
+    const email = loginEmailInput.value.trim();
+    const pass = loginPassInput.value.trim();
+    if (!email || !pass) return alert('Please fill in all fields');
+    
+    // MySQL integration will go here
+    console.log('Logging in:', email);
+    // Placeholder login
+    localStorage.setItem('currentUser', JSON.stringify({ email }));
+    showView('task');
+});
+
+registerBtn.addEventListener('click', async () => {
+    const user = regUserInput.value.trim();
+    const email = regEmailInput.value.trim();
+    const pass = regPassInput.value.trim();
+    if (!user || !email || !pass) return alert('Please fill in all fields');
+    
+    // MySQL integration will go here
+    console.log('Registering:', user, email);
+    alert('Registration successful! (Placeholder)');
+    loginForm.classList.remove('hidden');
+    registerForm.classList.add('hidden');
 });
 
 function createStars() {
@@ -82,20 +169,30 @@ function addTodo(text) {
     const todo = {
         id: Date.now(),
         text: text,
-        completed: false
+        completed: false,
+        createdAt: new Date().toISOString()
     };
     todos.unshift(todo);
+    addToHistory(todo.id, 'created', text);
     saveAndRender();
 }
 
 function toggleTodo(id) {
-    todos = todos.map(todo => 
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    );
+    todos = todos.map(todo => {
+        if (todo.id === id) {
+            const newStatus = !todo.completed;
+            addToHistory(id, newStatus ? 'completed' : 'updated', todo.text);
+            return { ...todo, completed: newStatus };
+        }
+        return todo;
+    });
     saveAndRender();
 }
 
 function deleteTodo(id) {
+    const todo = todos.find(t => t.id === id);
+    if (todo) addToHistory(id, 'deleted', todo.text);
+    
     const item = document.querySelector(`[data-id="${id}"]`);
     item.style.transform = 'translateX(50px)';
     item.style.opacity = '0';
@@ -135,6 +232,50 @@ function closeModal() {
     currentEditId = null;
 }
 
+// History Logic
+function addToHistory(taskId, action, text) {
+    const entry = {
+        id: Date.now(),
+        taskId,
+        action,
+        text,
+        timestamp: new Date().toISOString()
+    };
+    history.unshift(entry);
+    localStorage.setItem('taskHistory', JSON.stringify(history));
+}
+
+showHistoryBtn.addEventListener('click', () => {
+    renderHistory();
+    historyModal.classList.add('active');
+});
+
+closeHistoryBtn.addEventListener('click', () => {
+    historyModal.classList.remove('active');
+});
+
+function renderHistory() {
+    historyContent.innerHTML = '';
+    if (history.length === 0) {
+        historyContent.innerHTML = '<p class="toggle-text">No history yet.</p>';
+        return;
+    }
+
+    history.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const date = new Date(entry.timestamp).toLocaleString();
+        div.innerHTML = `
+            <div>
+                <span class="history-action action-${entry.action}">${entry.action}</span>: 
+                <span class="history-text">${escapeHtml(entry.text)}</span>
+            </div>
+            <span class="history-time">${date}</span>
+        `;
+        historyContent.innerHTML += div.outerHTML;
+    });
+}
+
 clearCompleted.addEventListener('click', () => {
     todos = todos.filter(todo => !todo.completed);
     saveAndRender();
@@ -156,7 +297,10 @@ function renderTasks() {
         
         li.innerHTML = `
             <div class="checkbox" onclick="toggleTodo(${todo.id})"></div>
-            <span class="todo-text">${escapeHtml(todo.text)}</span>
+            <div class="todo-text">
+                <span>${escapeHtml(todo.text)}</span>
+                <span class="task-date">${new Date(todo.createdAt || todo.id).toLocaleString()}</span>
+            </div>
             <div class="item-actions">
                 <button class="action-btn edit-btn" onclick="editTodo(${todo.id})">
                     <i class="fas fa-edit"></i>

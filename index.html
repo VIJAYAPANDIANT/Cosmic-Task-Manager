@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern To-Do List | CRUD</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-mode">
+    <div class="background-blobs">
+        <div class="stars-container" id="starsContainer"></div>
+        <div class="stars-container slow" id="starsContainerSlow"></div>
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+        <div class="nebula nebula-3"></div>
+    </div>
+
+    <main class="container">
+        <header>
+            <div class="header-top">
+                <h1>Task Master</h1>
+                <button id="themeToggle" class="theme-btn" aria-label="Toggle theme">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+            
+            <form id="todoForm" class="todo-input-group">
+                <input type="text" id="todoInput" placeholder="What needs to be done?" required>
+                <button type="submit" class="add-btn" aria-label="Add task">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </form>
+        </header>
+
+        <section class="task-sections">
+            <div class="stats-bar">
+                <span id="taskCount">0 tasks left</span>
+                <button id="clearCompleted" class="text-btn">Clear completed</button>
+            </div>
+            
+            <ul id="todoList" class="todo-list">
+                <!-- Tasks will be injected here -->
+            </ul>
+        </section>
+    </main>
+
+    <!-- Edit Task Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Task</h2>
+            <label for="editInput" class="visually-hidden">Edit Task</label>
+            <input type="text" id="editInput" placeholder="Update your task...">
+            <div class="modal-actions">
+                <button id="cancelEdit" class="secondary-btn">Cancel</button>
+                <button id="saveEdit" class="primary-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
